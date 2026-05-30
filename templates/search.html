@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% block content %}
+  <section>
+    <h1>Поиск по архиву</h1>
+    <form class="search-form" action="{{ url_for('search') }}" method="get">
+      <input type="search" name="q" placeholder="Введите ключевое слово" value="{{ query }}" autofocus>
+      <button class="button" type="submit">Найти</button>
+    </form>
+
+    {% if query %}
+      <p>Результаты поиска для «{{ query }}»:</p>
+      {% if photos %}
+        <div class="cards cards--wide">
+          {% for photo in photos %}
+            <article class="card card--archive">
+              <div class="card__image">📷</div>
+              <div>
+                <h3><a href="{{ url_for('photo_detail', photo_id=photo.id) }}">{{ photo.title }}</a></h3>
+                <p>{{ photo.author }} — {{ photo.created_at.strftime('%d.%m.%Y') }}</p>
+              </div>
+            </article>
+          {% endfor %}
+        </div>
+      {% else %}
+        <p>Ничего не найдено.</p>
+      {% endif %}
+    {% endif %}
+  </section>
+{% endblock %}

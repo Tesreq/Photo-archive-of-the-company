@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% block content %}
+  <section>
+    <h1>Архив фотографий</h1>
+    {% if photos %}
+      <div class="cards cards--wide">
+        {% for photo in photos %}
+          <article class="card card--archive">
+            <div class="card__image">📷</div>
+            <div>
+              <h3><a href="{{ url_for('photo_detail', photo_id=photo.id) }}">{{ photo.title }}</a></h3>
+              <p>{{ photo.author }} — {{ photo.created_at.strftime('%d.%m.%Y') }}</p>
+              <p>{{ photo.description[:150] }}{% if photo.description|length > 150 %}...{% endif %}</p>
+            </div>
+          </article>
+        {% endfor %}
+      </div>
+    {% else %}
+      <p>Архив пуст. Загрузите фотографии через форму.</p>
+    {% endif %}
+  </section>
+{% endblock %}

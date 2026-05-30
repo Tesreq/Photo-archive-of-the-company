@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% block content %}
+  <section class="hero">
+    <h1>Фотоархив компании</h1>
+    <p>Архив корпоративных фотографий: события, команды, проекты и презентации.</p>
+    <div class="actions">
+      <a class="button" href="{{ url_for('archive') }}">Перейти в архив</a>
+      <a class="button button--secondary" href="{{ url_for('upload') }}">Добавить фото</a>
+    </div>
+  </section>
+
+  <section class="grid">
+    <h2>Последние добавленные</h2>
+    {% if photos %}
+      <div class="cards">
+        {% for photo in photos %}
+          <article class="card">
+            <div class="card__image">📷</div>
+            <div>
+              <h3><a href="{{ url_for('photo_detail', photo_id=photo.id) }}">{{ photo.title }}</a></h3>
+              <p>{{ photo.author }} — {{ photo.created_at.strftime('%d.%m.%Y') }}</p>
+            </div>
+          </article>
+        {% endfor %}
+      </div>
+    {% else %}
+      <p>Пока нет фотографий в архиве. Добавьте первую запись.</p>
+    {% endif %}
+  </section>
+{% endblock %}

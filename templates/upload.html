@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% block content %}
+  <section>
+    <h1>Добавить фотографию</h1>
+    <form class="form" method="post">
+      <label>Название<span>*</span>
+        <input type="text" name="title" required>
+      </label>
+      <label>Автор<span>*</span>
+        <input type="text" name="author" required>
+      </label>
+      <label>Описание
+        <textarea name="description" rows="5"></textarea>
+      </label>
+      <label>Имя файла<span>*</span>
+        <input type="text" name="filename" placeholder="Пример: event-2026-05-30.jpg" required>
+      </label>
+      <p class="note">В этой версии имя файла сохраняется как строка. Позже можно добавить загрузку файлов на сервер.</p>
+      <button class="button" type="submit">Сохранить</button>
+    </form>
+  </section>
+{% endblock %}
