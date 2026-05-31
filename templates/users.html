@@ -1,0 +1,90 @@
+{% extends 'base.html' %}
+
+{% block title %}Управление пользователями{% endblock %}
+
+{% block content %}
+  <section class="panel user-search">
+    <h1>Поиск пользователей</h1>
+    <form class="filters filters--users" action="{{ url_for('users') }}" method="get">
+      <label>
+        Логин
+        <input type="text" name="login">
+      </label>
+      <label>
+        Роль
+        <select name="role">
+          <option></option>
+          <option>Сотрудник</option>
+          <option>Архивариус</option>
+          <option>Администратор</option>
+        </select>
+      </label>
+      <label>
+        Статус
+        <select name="status">
+          <option></option>
+          <option>Активен</option>
+          <option>Заблокирован</option>
+        </select>
+      </label>
+      <button class="button" type="submit">Найти</button>
+      <a class="button button--outline" href="{{ url_for('users') }}">Очистить</a>
+    </form>
+  </section>
+
+  <section class="panel results-panel">
+    <div class="results-panel__title">
+      <h2>Результаты поиска <span>(найдено: {{ users|length }})</span></h2>
+    </div>
+
+    <div class="table-wrap">
+      <table class="users-table">
+        <thead>
+          <tr>
+            <th>Пользователь</th>
+            <th>Логин</th>
+            <th>Роль</th>
+            <th>Статус</th>
+            <th>Действия</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for user in users %}
+            <tr>
+              <td>
+                <div class="user-cell">
+                  <span class="avatar"></span>
+                  <span>
+                    <strong>{{ user.name }}</strong>
+                    <small>{{ user.department }}</small>
+                  </span>
+                </div>
+              </td>
+              <td>{{ user.login }}</td>
+              <td>{{ user.role }}</td>
+              <td>
+                <span class="status {{ 'status--active' if user.status == 'Активен' else 'status--blocked' }}">
+                  {{ user.status }}
+                </span>
+              </td>
+              <td class="row-actions">
+                <button class="button button--small button--outline" type="button">Изменить роль</button>
+                {% if user.status == 'Активен' %}
+                  <button class="button button--small button--danger-outline" type="button">Заблокировать</button>
+                {% else %}
+                  <button class="button button--small button--success-outline" type="button">Разблокировать</button>
+                {% endif %}
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="pagination" aria-label="Пагинация">
+      <button disabled>‹</button>
+      <button class="is-active">1</button>
+      <button disabled>›</button>
+    </div>
+  </section>
+{% endblock %}

@@ -1,13 +1,66 @@
 {% extends 'base.html' %}
+
+{% block title %}{{ photo.title }}{% endblock %}
+
 {% block content %}
-  <section class="photo-detail">
-    <div class="photo-detail__image">📷</div>
-    <div>
-      <h1>{{ photo.title }}</h1>
-      <p class="meta">Автор: {{ photo.author }} | Дата: {{ photo.created_at.strftime('%d.%m.%Y') }}</p>
-      <p>{{ photo.description or 'Описание отсутствует.' }}</p>
-      <p><strong>Имя файла:</strong> {{ photo.filename }}</p>
-      <a class="button button--secondary" href="{{ url_for('archive') }}">Вернуться в архив</a>
+  <section class="modal-card edit-card">
+    <div class="modal-card__header">
+      <h1>Редактирование файла</h1>
+      <a href="{{ url_for('search') }}" aria-label="Закрыть">×</a>
+    </div>
+
+    <div class="edit-layout">
+      <div class="edit-layout__form">
+        <label class="field-label">Файл</label>
+        <div class="selected-file">
+          <span class="file-icon file-icon--{{ photo.file_extension }}">{{ photo.file_badge }}</span>
+          <div>
+            <strong>{{ photo.filename }}</strong>
+            <small>{{ photo.file_badge }} · запись архива</small>
+            <a href="{{ url_for('upload') }}">Заменить файл</a>
+          </div>
+        </div>
+
+        <div class="date-grid">
+          <label>
+            Дата добавления
+            <input type="text" value="{{ photo.created_at.strftime('%d.%m.%Y') }}" readonly>
+          </label>
+          <label>
+            Дата изменения
+            <input type="text" value="{{ photo.created_at.strftime('%d.%m.%Y') }}" readonly>
+          </label>
+        </div>
+
+        <label>
+          Краткое описание
+          <textarea rows="8" readonly>{{ photo.title }}</textarea>
+        </label>
+
+        <label>
+          Ключевые слова
+          <input type="text" value="{{ photo.author }}" readonly>
+        </label>
+      </div>
+
+      <aside class="preview">
+        <h2>Предпросмотр</h2>
+        <div class="preview__page">
+          <span>Документ</span>
+          <i></i>
+          <i></i>
+          <i></i>
+          <i></i>
+          <i></i>
+        </div>
+        <div class="preview__pager">
+          <button type="button">‹</button>
+          <span>1 из 5</span>
+          <button type="button">›</button>
+        </div>
+        <a class="button" href="{{ photo.image_url }}" download>Скачать</a>
+        <a class="button button--outline" href="{{ url_for('search') }}">Отмена</a>
+      </aside>
     </div>
   </section>
 {% endblock %}

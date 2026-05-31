@@ -1,30 +1,48 @@
 {% extends 'base.html' %}
+
 {% block content %}
   <section class="hero">
-    <h1>Фотоархив компании</h1>
-    <p>Архив корпоративных фотографий: события, команды, проекты и презентации.</p>
-    <div class="actions">
-      <a class="button" href="{{ url_for('archive') }}">Перейти в архив</a>
-      <a class="button button--secondary" href="{{ url_for('upload') }}">Добавить фото</a>
+    <div class="hero__content">
+      <p class="eyebrow">Корпоративная медиатека</p>
+      <h1>Фотоархив компании</h1>
+      <p>Единое место для хранения снимков с мероприятий, проектов, командных встреч и презентаций.</p>
+      <div class="actions">
+        <a class="button" href="{{ url_for('archive') }}">Открыть архив</a>
+        <a class="button button--secondary" href="{{ url_for('upload') }}">Добавить фото</a>
+      </div>
+    </div>
+    <div class="hero__stats" aria-label="Статистика архива">
+      <span>{{ total_photos }}</span>
+      <p>фото в архиве</p>
     </div>
   </section>
 
-  <section class="grid">
-    <h2>Последние добавленные</h2>
+  <section class="section">
+    <div class="section__heading">
+      <h2>Последние добавленные</h2>
+      <a href="{{ url_for('archive') }}">Все фотографии</a>
+    </div>
+
     {% if photos %}
       <div class="cards">
         {% for photo in photos %}
           <article class="card">
-            <div class="card__image">📷</div>
-            <div>
+            <a class="card__image" href="{{ url_for('photo_detail', photo_id=photo.id) }}">
+              <img src="{{ photo.image_url }}" alt="{{ photo.title }}" onerror="this.hidden = true; this.parentElement.classList.add('card__image--empty')">
+            </a>
+            <div class="card__body">
               <h3><a href="{{ url_for('photo_detail', photo_id=photo.id) }}">{{ photo.title }}</a></h3>
-              <p>{{ photo.author }} — {{ photo.created_at.strftime('%d.%m.%Y') }}</p>
+              <p>{{ photo.author }} · {{ photo.created_at.strftime('%d.%m.%Y') }}</p>
             </div>
           </article>
         {% endfor %}
       </div>
     {% else %}
-      <p>Пока нет фотографий в архиве. Добавьте первую запись.</p>
+      <div class="empty-state">
+        <h3>Архив пока пуст</h3>
+        <p>Добавьте первую запись, чтобы проверить сетку карточек и детальную страницу.</p>
+        <a class="button" href="{{ url_for('upload') }}">Добавить фото</a>
+      </div>
     {% endif %}
   </section>
 {% endblock %}

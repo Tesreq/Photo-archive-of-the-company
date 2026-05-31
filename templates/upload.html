@@ -1,22 +1,66 @@
 {% extends 'base.html' %}
+
+{% block title %}Добавление файла{% endblock %}
+
 {% block content %}
-  <section>
-    <h1>Добавить фотографию</h1>
-    <form class="form" method="post">
-      <label>Название<span>*</span>
-        <input type="text" name="title" required>
-      </label>
-      <label>Автор<span>*</span>
-        <input type="text" name="author" required>
-      </label>
-      <label>Описание
-        <textarea name="description" rows="5"></textarea>
-      </label>
-      <label>Имя файла<span>*</span>
-        <input type="text" name="filename" placeholder="Пример: event-2026-05-30.jpg" required>
-      </label>
-      <p class="note">В этой версии имя файла сохраняется как строка. Позже можно добавить загрузку файлов на сервер.</p>
-      <button class="button" type="submit">Сохранить</button>
+  <section class="modal-card upload-card">
+    <div class="modal-card__header">
+      <h1>Добавление файла</h1>
+      <a href="{{ url_for('search') }}" aria-label="Закрыть">×</a>
+    </div>
+
+    <form class="upload-form" method="post" enctype="multipart/form-data">
+      <div class="upload-form__main">
+        <div class="upload-form__left">
+          <label class="field-label">Файл</label>
+          <label class="dropzone">
+            <input type="file" name="image" accept="image/*,.pdf,.tif,.tiff">
+            <span>Перетащите файл сюда</span>
+            <small>или</small>
+            <strong>Выбрать файл</strong>
+            <em>JPG, PNG, PDF, TIFF · до 100 МБ</em>
+          </label>
+
+          <label>
+            Краткое описание<span>*</span>
+            <textarea name="title" rows="7" required placeholder="Введите краткое описание документа"></textarea>
+          </label>
+
+          <label>
+            Ключевые слова<span>*</span>
+            <input type="text" name="author" required placeholder="Введите ключевые слова через запятую">
+          </label>
+
+          <label>
+            Имя файла для макета
+            <input type="text" name="filename" placeholder="document-2026-05-30.pdf">
+          </label>
+
+          <input type="hidden" name="description" value="">
+        </div>
+
+        <aside class="preview">
+          <h2>Предпросмотр</h2>
+          <div class="preview__page">
+            <span>Документ</span>
+            <i></i>
+            <i></i>
+            <i></i>
+            <i></i>
+            <i></i>
+          </div>
+          <div class="preview__pager">
+            <button type="button">‹</button>
+            <span>1 из 5</span>
+            <button type="button">›</button>
+          </div>
+        </aside>
+      </div>
+
+      <div class="modal-card__actions">
+        <a class="button button--outline" href="{{ url_for('search') }}">Отмена</a>
+        <button class="button" type="submit">Сохранить</button>
+      </div>
     </form>
   </section>
 {% endblock %}

@@ -3,35 +3,44 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Фотоархив компании</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css" integrity="sha512-NhSC3D+..." crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <title>{% block title %}Фотоархив компании{% endblock %}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
   </head>
   <body>
     <header class="topbar">
-      <div class="container topbar__inner">
-        <a class="brand" href="{{ url_for('index') }}">Фотоархив</a>
-        <nav>
-          <a href="{{ url_for('archive') }}">Архив</a>
-          <a href="{{ url_for('upload') }}">Добавить фото</a>
-          <a href="{{ url_for('search') }}">Поиск</a>
-        </nav>
+      <a class="brand" href="{{ url_for('search') }}" aria-label="Фотоархив компании">
+        <span class="brand__icon">W</span>
+        <span>Фотоархив компании</span>
+      </a>
+
+      <nav class="nav" aria-label="Основная навигация">
+        <a class="{{ 'is-active' if active_page == 'search' else '' }}" href="{{ url_for('search') }}">Поиск файлов</a>
+        <a class="{{ 'is-active' if active_page == 'upload' else '' }}" href="{{ url_for('upload') }}">Добавить файл</a>
+        <a class="{{ 'is-active' if active_page == 'users' else '' }}" href="{{ url_for('users') }}">Управление пользователями</a>
+      </nav>
+
+      <div class="profile">
+        <span class="profile__avatar">И.И.</span>
+        <span>
+          <strong>Иванов И.И.</strong>
+          <small>Администратор</small>
+        </span>
+        <span class="profile__chevron"></span>
       </div>
     </header>
-    <main class="container">
+
+    <main class="workspace">
       {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
-          <section class="messages">
+          <section class="messages" aria-label="Системные сообщения">
             {% for category, message in messages %}
               <div class="message message--{{ category }}">{{ message }}</div>
             {% endfor %}
           </section>
         {% endif %}
       {% endwith %}
+
       {% block content %}{% endblock %}
     </main>
-    <footer class="footer">
-      <div class="container">Учебный проект по фотоархиву | Flask + SQLite</div>
-    </footer>
   </body>
 </html>
