@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ file.file_name }} — Фотоархив компании{% endblock %}
+
+{% block content %}
+  <section class="modal-card edit-card">
+    <div class="modal-card__header">
+      <h1>Просмотр файла</h1>
+      <a href="{{ url_for('search') }}" aria-label="Закрыть">×</a>
+    </div>
+
+    <div class="edit-layout">
+      <div class="edit-layout__form">
+        <label class="field-label">Файл</label>
+        <div class="selected-file">
+          <img class="file-type-icon file-type-icon--large" src="{{ url_for('static', filename='icons/' ~ file.icon_name) }}" alt="{{ file.extension }}">
+          <div>
+            <strong>{{ file.file_name }}</strong>
+            <small>{{ file.extension|upper }} · {{ file.file_size }} байт · {{ file.mime_type }}</small>
+          </div>
+        </div>
+
+        <div class="date-grid">
+          <label>
+            Дата документа
+            <input type="text" value="{{ file.original_date.strftime('%d.%m.%Y') }}" readonly>
+          </label>
+          <label>
+            Дата загрузки
+            <input type="text" value="{{ file.upload_date.strftime('%d.%m.%Y %H:%M') }}" readonly>
+          </label>
+        </div>
+
+        <label>
+          Описание
+          <textarea rows="6" readonly>{{ file.description or '—' }}</textarea>
+        </label>
+
+        <label>
+          Ключевые слова
+          <div class="tags-list">
+            {% for kw in all_keywords %}
+              <span class="tag">{{ kw }}</span>
+            {% else %}
+              <span class="muted">—</span>
+            {% endfor %}
+          </div>
+        </label>
+      </div>
+
+      <aside class="preview">
+        <h2>Предпросмотр</h2>
+        {% if file.mime_type.startswith('image/') %}
+          <div class="preview__image">
+            <img src="{{ url_for('api_download', file_id=file.id) }}" alt="{{ file.file_name }}">
+          </div>
+        {% else %}
+          <div class="preview__page">
+            <img class="file-type-icon file-type-icon--huge" src="{{ url_for('static', filename='icons/' ~ file.icon_name) }}" alt="{{ file.extension }}">
+            <span>Файл типа {{ file.extension|upper }}</span>
+          </div>
+        {% endif %}
+        <a class="button" href="{{ url_for('api_download', file_id=file.id) }}">Скачать</a>
+        {% if current_user.role.name in ('Администратор', 'Архивариус') %}
+        <a class="button button--outline" href="{{ url_for('file_edit', file_id=file.id) }}">Редактировать</a>
+        {% endif %}
+        {% if current_user.role.name == 'Администратор' %}
+        <button class="button button--danger-outline" onclick="deleteFile({{ file.id }})">Удалить</button>
+        {% endif %}
+        <a class="button button--outline" href="{{ url_for('search') }}">Назад</a>
+      </aside>
+    </div>
+  </section>
+{% endblock %}

@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+
+{% block title %}Журнал событий — Фотоархив компании{% endblock %}
+
+{% block content %}
+  <section class="panel results-panel">
+    <div class="results-panel__title">
+      <h2>Журнал событий <span>(всего: {{ total }})</span></h2>
+    </div>
+
+    <div class="table-wrap">
+      <table class="logs-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Пользователь</th>
+            <th>Время</th>
+            <th>Действие</th>
+            <th>Подробности</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for entry in entries %}
+            <tr>
+              <td>{{ entry.id }}</td>
+              <td>{{ entry.user.login if entry.user else '—' }}</td>
+              <td>{{ entry.timestamp.strftime('%d.%m.%Y %H:%M:%S') }}</td>
+              <td><span class="action-badge action-badge--{{ entry.action|lower }}">{{ entry.action }}</span></td>
+              <td>{{ entry.details or '—' }}</td>
+            </tr>
+          {% else %}
+            <tr>
+              <td colspan="5">
+                <div class="empty-row">
+                  <strong>Журнал пуст</strong>
+                  <span>События будут появляться по мере использования системы.</span>
+                </div>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    {% if total_pages > 1 %}
+    <div class="pagination" aria-label="Пагинация">
+      {% if page > 1 %}
+        <a class="pagination__btn" href="{{ url_for('logs', page=page-1) }}">‹</a>
+      {% else %}
+        <button class="pagination__btn" disabled>‹</button>
+      {% endif %}
+
+      {% for p in range(1, total_pages + 1) %}
+        {% if p == page %}
+          <button class="pagination__btn is-active">{{ p }}</button>
+        {% else %}
+          <a class="pagination__btn" href="{{ url_for('logs', page=p) }}">{{ p }}</a>
+        {% endif %}
+      {% endfor %}
+
+      {% if page < total_pages %}
+        <a class="pagination__btn" href="{{ url_for('logs', page=page+1) }}">›</a>
+      {% else %}
+        <button class="pagination__btn" disabled>›</button>
+      {% endif %}
+    </div>
+    {% endif %}
+  </section>
+{% endblock %}

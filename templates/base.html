@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}Фотоархив компании{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  </head>
+  <body>
+    {% if current_user %}
+    <header class="topbar">
+      <a class="brand" href="{{ url_for('search') }}" aria-label="Фотоархив компании">
+        <span class="brand__icon">W</span>
+        <span>Фотоархив компании</span>
+      </a>
+
+      <nav class="nav" aria-label="Основная навигация">
+        <a class="{{ 'is-active' if active_page == 'search' else '' }}" href="{{ url_for('search') }}">Поиск файлов</a>
+        {% if current_user.role.name in ('Администратор', 'Архивариус') %}
+        <a class="{{ 'is-active' if active_page == 'upload' else '' }}" href="{{ url_for('upload') }}">Добавить файл</a>
+        {% endif %}
+        {% if current_user.role.name == 'Администратор' %}
+        <a class="{{ 'is-active' if active_page == 'users' else '' }}" href="{{ url_for('users') }}">Пользователи</a>
+        <a class="{{ 'is-active' if active_page == 'logs' else '' }}" href="{{ url_for('logs') }}">Журнал событий</a>
+        {% endif %}
+      </nav>
+
+      <div class="profile">
+        <span class="profile__avatar">{{ current_user.login[:2]|upper }}</span>
+        <span>
+          <strong>{{ current_user.login }}</strong>
+          <small>{{ current_user.role.name }}</small>
+        </span>
+        <button class="profile__logout" onclick="logout()" title="Выйти">⏻</button>
+      </div>
+    </header>
+    {% endif %}
+
+    <main class="workspace">
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          <section class="messages" aria-label="Системные сообщения">
+            {% for category, message in messages %}
+              <div class="message message--{{ category }}">{{ message }}</div>
+            {% endfor %}
+          </section>
+        {% endif %}
+      {% endwith %}
+
+      {% block content %}{% endblock %}
+    </main>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+  </body>
+</html>

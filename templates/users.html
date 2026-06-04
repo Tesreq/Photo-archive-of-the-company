@@ -1,0 +1,108 @@
+{% extends 'base.html' %}
+
+{% block title %}Управление пользователями — Фотоархив компании{% endblock %}
+
+{% block content %}
+  <section class="panel user-search">
+    <h1>Поиск пользователей</h1>
+    <form class="filters filters--users" action="{{ url_for('users') }}" method="get">
+      <label>
+        Логин
+        <input type="text" name="login" value="{{ login_filter }}">
+      </label>
+      <label>
+        Роль
+        <select name="role">
+          <option value="">Все</option>
+          {% for r in roles %}
+            <option value="{{ r.name }}" {% if role_filter == r.name %}selected{% endif %}>{{ r.name }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <label>
+        Статус
+        <select name="status">
+          <option value="">Все</option>
+          <option value="Активен" {% if status_filter == 'Активен' %}selected{% endif %}>Активен</option>
+          <option value="Заблокирован" {% if status_filter == 'Заблокирован' %}selected{% endif %}>Заблокирован</option>
+        </select>
+      </label>
+      <button class="button" type="submit">Найти</button>
+      <a class="button button--outline" href="{{ url_for('users') }}">Очистить</a>
+    </form>
+  </section>
+
+  <section class="panel results-panel">
+    <div class="results-panel__title">
+      <h2>Пользователи <span>(найдено: {{ total }})</span></h2>
+    </div>
+
+    <div class="table-wrap">
+      <table class="users-table">
+        <thead>
+          <tr>
+            <th>Логин</th>
+            <th>Роль</th>
+            <th>Статус</th>
+            <th>Действия</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for user in users %}
+            <tr id="user-row-{{ user.id }}">
+              <td>
+                <div class="user-cell">
+                  <span class="avatar">{{ user.login[:2]|upper }}</span>
+                  <strong>{{ user.login }}</strong>
+                </div>
+              </td>
+              <td>
+                <select class="role-select" data-user-id="{{ user.id }}">
+                  {% for r in roles %}
+                    <option value="{{ r.name }}" {% if user.role.name == r.name %}selected{% endif %}>{{ r.name }}</option>
+                  {% endfor %}
+                </select>
+              </td>
+              <td>
+                <span class="status {{ 'status--active' if user.is_active else 'status--blocked' }}">
+                  {{ 'Активен' if user.is_active else 'Заблокирован' }}
+                </span>
+              </td>
+              <td class="row-actions">
+                {% if user.is_active %}
+                  <button class="button button--small button--danger-outline" onclick="toggleUserStatus({{ user.id }}, false)">Заблокировать</button>
+                {% else %}
+                  <button class="button button--small button--success-outline" onclick="toggleUserStatus({{ user.id }}, true)">Разблокировать</button>
+                {% endif %}
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    {% if total_pages > 1 %}
+    <div class="pagination" aria-label="Пагинация">
+      {% if page > 1 %}
+        <a class="pagination__btn" href="{{ url_for('users', page=page-1, login=login_filter, role=role_filter, status=status_filter) }}">‹</a>
+      {% else %}
+        <button class="pagination__btn" disabled>‹</button>
+      {% endif %}
+
+      {% for p in range(1, total_pages + 1) %}
+        {% if p == page %}
+          <button class="pagination__btn is-active">{{ p }}</button>
+        {% else %}
+          <a class="pagination__btn" href="{{ url_for('users', page=p, login=login_filter, role=role_filter, status=status_filter) }}">{{ p }}</a>
+        {% endif %}
+      {% endfor %}
+
+      {% if page < total_pages %}
+        <a class="pagination__btn" href="{{ url_for('users', page=page+1, login=login_filter, role=role_filter, status=status_filter) }}">›</a>
+      {% else %}
+        <button class="pagination__btn" disabled>›</button>
+      {% endif %}
+    </div>
+    {% endif %}
+  </section>
+{% endblock %}
