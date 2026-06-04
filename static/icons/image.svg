@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 60" fill="none">
+  <rect x="1" y="1" width="46" height="58" rx="4" fill="#fff" stroke="#8b5cf6" stroke-width="2"/>
+  <rect x="1" y="1" width="46" height="16" rx="4" fill="#8b5cf6"/>
+  <text x="24" y="13" text-anchor="middle" fill="#fff" font-family="Arial,sans-serif" font-size="10" font-weight="bold">IMG</text>
+  <!-- Иконка изображения: горы и солнце -->
+  <circle cx="16" cy="32" r="4" fill="#c4b5fd"/>
+  <path d="M8 48 L18 36 L26 42 L34 32 L40 40 L40 48 Z" fill="#c4b5fd"/>
+</svg>

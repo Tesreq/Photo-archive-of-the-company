@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+{% block title %}Вход — Фотоархив компании{% endblock %}
+
+{% block content %}
+  <section class="login-panel">
+    <div class="login-card">
+      <div class="login-card__header">
+        <span class="brand__icon brand__icon--large">W</span>
+        <h1>Фотоархив компании</h1>
+        <p>Введите логин и пароль для входа в систему</p>
+      </div>
+
+      <form class="login-form" id="loginForm">
+        <label>
+          Логин
+          <input type="text" name="login" required autocomplete="username" placeholder="Введите логин">
+        </label>
+        <label>
+          Пароль
+          <input type="password" name="password" required autocomplete="current-password" placeholder="Введите пароль">
+        </label>
+        <div id="loginError" class="login-error" style="display:none;"></div>
+        <button class="button button--full" type="submit">Войти</button>
+      </form>
+
+      <div class="login-card__footer">
+        <p>Нет аккаунта? <a href="{{ url_for('register') }}">Зарегистрироваться</a></p>
+      </div>
+    </div>
+  </section>
+{% endblock %}

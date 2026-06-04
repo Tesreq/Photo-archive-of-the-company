@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+
+{% block title %}Редактирование — {{ file.file_name }}{% endblock %}
+
+{% block content %}
+  <section class="modal-card edit-card">
+    <div class="modal-card__header">
+      <h1>Редактирование файла</h1>
+      <a href="{{ url_for('file_detail', file_id=file.id) }}" aria-label="Закрыть">×</a>
+    </div>
+
+    <form class="edit-layout" method="post">
+      <div class="edit-layout__form">
+        <label class="field-label">Файл</label>
+        <div class="selected-file">
+          <img class="file-type-icon file-type-icon--large" src="{{ url_for('static', filename='icons/' ~ file.icon_name) }}" alt="{{ file.extension }}">
+          <div>
+            <strong>{{ file.file_name }}</strong>
+            <small>{{ file.extension|upper }} · {{ file.file_size }} байт</small>
+          </div>
+        </div>
+
+        <div class="date-grid">
+          <label>
+            Дата документа
+            <input type="date" name="original_date" value="{{ file.original_date.strftime('%Y-%m-%d') }}" required>
+          </label>
+          <label>
+            Дата загрузки
+            <input type="text" value="{{ file.upload_date.strftime('%d.%m.%Y %H:%M') }}" readonly>
+          </label>
+        </div>
+
+        <label>
+          Описание
+          <textarea name="description" rows="6">{{ file.description or '' }}</textarea>
+        </label>
+
+        <label>
+          Ключевые слова <small class="muted">(через запятую)</small>
+          <input type="text" name="keywords" value="{{ all_keywords|join(', ') }}" placeholder="договор, аренда, 2026">
+        </label>
+      </div>
+
+      <aside class="preview">
+        <h2>Действия</h2>
+        <button class="button" type="submit">Сохранить</button>
+        <a class="button button--outline" href="{{ url_for('file_detail', file_id=file.id) }}">Отмена</a>
+      </aside>
+    </form>
+  </section>
+{% endblock %}
