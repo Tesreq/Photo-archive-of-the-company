@@ -100,7 +100,83 @@ document.addEventListener("DOMContentLoaded", () => {
     // Сохраняем начальное значение
     select.dataset.prev = select.value;
   });
+
+  const fileInput = document.getElementById("fileInput");
+  const uploadPreview = document.getElementById("uploadPreview");
+  let uploadPreviewUrl = null;
+
+  if (fileInput && uploadPreview) {
+    fileInput.addEventListener("change", () => {
+      const file = fileInput.files && fileInput.files[0];
+      if (uploadPreviewUrl) {
+        URL.revokeObjectURL(uploadPreviewUrl);
+        uploadPreviewUrl = null;
+      }
+
+      if (!file) {
+        uploadPreview.className = "preview__page preview__page--empty";
+        uploadPreview.innerHTML = "<span>Документ</span><i></i><i></i><i></i><i></i><i></i>";
+        return;
+      }
+
+      uploadPreviewUrl = URL.createObjectURL(file);
+      const fileSize = formatFileSize(file.size);
+
+      if (file.type.startsWith("image/")) {
+        uploadPreview.className = "preview__image preview__image--upload";
+        uploadPreview.innerHTML = `
+          <img src="${uploadPreviewUrl}" alt="">
+          <div class="preview__meta">
+            <strong>${escapeHtml(file.name)}</strong>
+            <small>${fileSize} · ${escapeHtml(file.type || "file")}</small>
+          </div>
+        `;
+        return;
+      }
+
+      if (file.type === "application/pdf") {
+        uploadPreview.className = "preview__pdf preview__pdf--upload";
+        uploadPreview.innerHTML = `
+          <iframe class="preview__frame" src="${uploadPreviewUrl}" title="${escapeHtml(file.name)}"></iframe>
+          <div class="preview__meta">
+            <strong>${escapeHtml(file.name)}</strong>
+            <small>${fileSize} · PDF</small>
+          </div>
+        `;
+        return;
+      }
+
+      uploadPreview.className = "preview__file";
+      uploadPreview.innerHTML = `
+        <div class="preview__file-icon">${escapeHtml(getFileExtension(file.name))}</div>
+        <div class="preview__meta">
+          <strong>${escapeHtml(file.name)}</strong>
+          <small>${fileSize} · ${escapeHtml(file.type || "неизвестный тип")}</small>
+        </div>
+      `;
+    });
+  }
 });
+
+function formatFileSize(bytes) {
+  if (bytes < 1024) return `${bytes} байт`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} КБ`;
+  return `${(bytes / 1024 / 1024).toFixed(1)} МБ`;
+}
+
+function getFileExtension(fileName) {
+  const extension = fileName.split(".").pop();
+  return extension && extension !== fileName ? extension.toUpperCase().slice(0, 5) : "FILE";
+}
+
+function escapeHtml(value) {
+  return String(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
 
 // =========================================================================
 // Выход из системы

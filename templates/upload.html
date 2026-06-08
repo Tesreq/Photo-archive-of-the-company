@@ -13,12 +13,13 @@
       <div class="upload-form__main">
         <div class="upload-form__left">
           <label class="field-label">Файл</label>
-          <label class="dropzone">
-            <input type="file" name="file" accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.tif,.tiff" required>
+          <label class="dropzone" for="fileInput" id="dropzone">
+            <input id="fileInput" type="file" name="file" accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.tif,.tiff" required>
             <span>Перетащите файл сюда</span>
             <small>или</small>
             <strong>Выбрать файл</strong>
             <em>Любой файл · без ограничения размера</em>
+            <b class="dropzone__file" id="dropzoneFile"></b>
           </label>
 
           <label>
@@ -39,7 +40,7 @@
 
         <aside class="preview">
           <h2>Предпросмотр</h2>
-          <div class="preview__page" id="uploadPreview">
+          <div class="preview__page preview__page--empty" id="uploadPreview">
             <span>Документ</span>
             <i></i><i></i><i></i><i></i><i></i>
           </div>
@@ -52,4 +53,114 @@
       </div>
     </form>
   </section>
+{% endblock %}
+
+{% block scripts %}
+  <script>
+    (() => {
+      const input = document.getElementById("fileInput");
+      const preview = document.getElementById("uploadPreview");
+      const dropzone = document.getElementById("dropzone");
+      const dropzoneFile = document.getElementById("dropzoneFile");
+      let previewUrl = null;
+
+      if (!input || !preview || !dropzone || !dropzoneFile) return;
+
+      const formatSize = (bytes) => {
+        if (bytes < 1024) return `${bytes} байт`;
+        if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} КБ`;
+        return `${(bytes / 1024 / 1024).toFixed(1)} МБ`;
+      };
+
+      const escapeHtml = (value) => String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+
+      const extension = (name) => {
+        const ext = name.split(".").pop();
+        return ext && ext !== name ? ext.toUpperCase().slice(0, 5) : "FILE";
+      };
+
+      const renderPreview = (file) => {
+        if (previewUrl) {
+          URL.revokeObjectURL(previewUrl);
+          previewUrl = null;
+        }
+
+        if (!file) {
+          dropzone.classList.remove("dropzone--has-file");
+          dropzoneFile.textContent = "";
+          preview.className = "preview__page preview__page--empty";
+          preview.innerHTML = "<span>Документ</span><i></i><i></i><i></i><i></i><i></i>";
+          return;
+        }
+
+        previewUrl = URL.createObjectURL(file);
+        dropzone.classList.add("dropzone--has-file");
+        dropzoneFile.textContent = `${file.name} · ${formatSize(file.size)}`;
+
+        if (file.type.startsWith("image/")) {
+          preview.className = "preview__image preview__image--upload";
+          preview.innerHTML = `
+            <img src="${previewUrl}" alt="">
+            <div class="preview__meta">
+              <strong>${escapeHtml(file.name)}</strong>
+              <small>${formatSize(file.size)} · ${escapeHtml(file.type || "file")}</small>
+            </div>
+          `;
+          return;
+        }
+
+        if (file.type === "application/pdf") {
+          preview.className = "preview__pdf preview__pdf--upload";
+          preview.innerHTML = `
+            <iframe class="preview__frame" src="${previewUrl}" title="${escapeHtml(file.name)}"></iframe>
+            <div class="preview__meta">
+              <strong>${escapeHtml(file.name)}</strong>
+              <small>${formatSize(file.size)} · PDF</small>
+            </div>
+          `;
+          return;
+        }
+
+        preview.className = "preview__file";
+        preview.innerHTML = `
+          <div class="preview__file-icon">${escapeHtml(extension(file.name))}</div>
+          <div class="preview__meta">
+            <strong>${escapeHtml(file.name)}</strong>
+            <small>${formatSize(file.size)} · ${escapeHtml(file.type || "неизвестный тип")}</small>
+          </div>
+        `;
+      };
+
+      input.addEventListener("change", () => renderPreview(input.files && input.files[0]));
+
+      ["dragenter", "dragover"].forEach((eventName) => {
+        dropzone.addEventListener(eventName, (event) => {
+          event.preventDefault();
+          dropzone.classList.add("dropzone--drag");
+        });
+      });
+
+      ["dragleave", "drop"].forEach((eventName) => {
+        dropzone.addEventListener(eventName, () => {
+          dropzone.classList.remove("dropzone--drag");
+        });
+      });
+
+      dropzone.addEventListener("drop", (event) => {
+        event.preventDefault();
+        const file = event.dataTransfer.files && event.dataTransfer.files[0];
+        if (!file) return;
+
+        const transfer = new DataTransfer();
+        transfer.items.add(file);
+        input.files = transfer.files;
+        renderPreview(file);
+      });
+    })();
+  </script>
 {% endblock %}

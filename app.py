@@ -8,7 +8,10 @@ app.py — Flask-приложение «Фотоархив компании».
 
 import mimetypes
 import os
+import zipfile
 from datetime import datetime, timedelta
+from io import BytesIO
+from xml.etree import ElementTree
 
 from flask import (
     Flask,
@@ -128,12 +131,47 @@ def create_app():
         db.session.commit()
 
     # Сделаем текущего пользователя доступным во всех шаблонах
+    def extract_docx_preview(file_obj, limit=18):
+        try:
+            with zipfile.ZipFile(BytesIO(file_obj.file_content)) as archive:
+                document_xml = archive.read("word/document.xml")
+        except (KeyError, zipfile.BadZipFile):
+            return []
+
+        namespace = {"w": "http://schemas.openxmlformats.org/wordprocessingml/2006/main"}
+        root = ElementTree.fromstring(document_xml)
+        paragraphs = []
+
+        for paragraph in root.findall(".//w:p", namespace):
+            parts = [
+                text.text
+                for text in paragraph.findall(".//w:t", namespace)
+                if text.text
+            ]
+            line = "".join(parts).strip()
+            if line:
+                paragraphs.append(line)
+            if len(paragraphs) >= limit:
+                break
+
+        return paragraphs
+
     @app.context_processor
     def inject_user():
         user = None
         if "user_id" in session:
             user = User.query.get(session["user_id"])
-        return dict(current_user=user)
+        active_page_by_endpoint = {
+            "search": "search",
+            "file_detail": "search",
+            "file_edit": "search",
+            "upload": "upload",
+            "users": "users",
+        }
+        return dict(
+            current_user=user,
+            active_page=active_page_by_endpoint.get(request.endpoint),
+        )
 
     # =======================================================================
     # Страницы (Jinja2)
@@ -314,7 +352,13 @@ def create_app():
     def file_detail(file_id):
         f = File.query.get_or_404(file_id)
         all_kw = [kw.name for kw in f.keywords]
-        return render_template("file_detail.html", file=f, all_keywords=all_kw)
+        preview_lines = extract_docx_preview(f) if f.extension == "docx" else []
+        return render_template(
+            "file_detail.html",
+            file=f,
+            all_keywords=all_kw,
+            preview_lines=preview_lines,
+        )
 
     # ----- Загрузка файла -----
     @app.route("/upload", methods=["GET", "POST"])
@@ -541,6 +585,20 @@ def create_app():
             BytesIO(f.file_content),
             mimetype=f.mime_type,
             as_attachment=True,
+            download_name=f.file_name,
+        )
+
+    # ----- Предпросмотр файла -----
+    @app.route("/api/files/preview/<int:file_id>")
+    @api_login_required
+    def api_preview(file_id):
+        f = File.query.get_or_404(file_id)
+        from io import BytesIO
+
+        return send_file(
+            BytesIO(f.file_content),
+            mimetype=f.mime_type,
+            as_attachment=False,
             download_name=f.file_name,
         )
 

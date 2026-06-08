@@ -52,7 +52,15 @@
         <h2>Предпросмотр</h2>
         {% if file.mime_type.startswith('image/') %}
           <div class="preview__image">
-            <img src="{{ url_for('api_download', file_id=file.id) }}" alt="{{ file.file_name }}">
+            <img src="{{ url_for('api_preview', file_id=file.id) }}" alt="{{ file.file_name }}">
+          </div>
+        {% elif file.mime_type == 'application/pdf' %}
+          <iframe class="preview__frame" src="{{ url_for('api_preview', file_id=file.id) }}" title="{{ file.file_name }}"></iframe>
+        {% elif preview_lines %}
+          <div class="preview__document">
+            {% for line in preview_lines %}
+              <p>{{ line }}</p>
+            {% endfor %}
           </div>
         {% else %}
           <div class="preview__page">

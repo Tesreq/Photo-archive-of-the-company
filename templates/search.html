@@ -37,7 +37,7 @@
             <th>Описание</th>
             <th>Ключевые слова</th>
             <th>Причина</th>
-            <th class="files-table__actions">Действия</th>
+            <th class="files-table__actions"></th>
           </tr>
         </thead>
         <tbody>
@@ -68,12 +68,6 @@
               <td class="row-actions">
                 <a class="button button--small" href="{{ url_for('file_detail', file_id=item.file.id) }}">Открыть</a>
                 <a class="button button--small button--outline" href="{{ url_for('api_download', file_id=item.file.id) }}">Скачать</a>
-                {% if current_user.role.name in ('Администратор', 'Архивариус') %}
-                <a class="button button--small button--outline" href="{{ url_for('file_edit', file_id=item.file.id) }}">Изменить</a>
-                {% endif %}
-                {% if current_user.role.name == 'Администратор' %}
-                <button class="button button--small button--danger-outline" onclick="deleteFile({{ item.file.id }})">Удалить</button>
-                {% endif %}
               </td>
             </tr>
           {% else %}
