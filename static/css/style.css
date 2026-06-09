@@ -486,18 +486,26 @@ td {
 }
 
 .row-actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.files-table .row-actions {
+  display: table-cell;
   white-space: nowrap;
   text-align: right;
 }
 
-.row-actions .button {
+.files-table .row-actions .button {
   visibility: hidden;
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.15s ease, visibility 0.15s ease, background 0.2s, color 0.2s;
 }
 
-.row-actions .button + .button {
+.files-table .row-actions .button + .button {
   margin-left: 10px;
 }
 
